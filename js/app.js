@@ -5,7 +5,7 @@ const contenedorCarrito = document.querySelector('#lista-carrito tbody');
 const vaciarCarritoBtn = document.querySelector('#vaciar-carrito'); 
 let articulosCarrito = [];
 
-// Eventos de escucha
+// Listeners
 cargarEventListeners();
 
 function cargarEventListeners() {
@@ -18,12 +18,13 @@ function cargarEventListeners() {
      // Al Vaciar el carrito
      vaciarCarritoBtn.addEventListener('click', vaciarCarrito);
 
+
+     //Contenido cargado
+     document.addEventListener('DOMContentLoaded', () => {
+          articulosCarrito = JSON.parse( localStorage.getItem('carrito') ) || []  ;
+          carritoHTML();
+     });
 }
-
-
-
-
-// Funciones
 
 
 // Función que añade el curso al carrito
@@ -51,18 +52,20 @@ function leerDatosCurso(curso) {
      if( articulosCarrito.some( curso => curso.id === infoCurso.id ) ) { 
           const cursos = articulosCarrito.map( curso => {
                if( curso.id === infoCurso.id ) {
-                    curso.cantidad++;
-                     return curso;
-                } else {
-                     return curso;
-             }
+                    let cantidad = parseInt(curso.cantidad);
+                    cantidad++
+                    curso.cantidad =  cantidad;
+                    return curso;
+               } else {
+                    return curso;
+               }
           })
           articulosCarrito = [...cursos];
      }  else {
           articulosCarrito = [...articulosCarrito, infoCurso];
      }
 
-     // console.log(articulosCarrito)
+     console.log(articulosCarrito)
 
      
 
@@ -75,7 +78,8 @@ function eliminarCurso(e) {
      e.preventDefault();
      if(e.target.classList.contains('borrar-curso') ) {
           // e.target.parentElement.parentElement.remove();
-          const cursoId = e.target.getAttribute('data-id')
+          const curso = e.target.parentElement.parentElement;
+          const cursoId = curso.querySelector('a').getAttribute('data-id');
           
           // Eliminar del arreglo del carrito
           articulosCarrito = articulosCarrito.filter(curso => curso.id !== cursoId);
@@ -106,6 +110,13 @@ function carritoHTML() {
           contenedorCarrito.appendChild(row);
      });
 
+     sincronizarStorage();
+
+}
+
+
+function sincronizarStorage() {
+     localStorage.setItem('carrito', JSON.stringify(articulosCarrito));
 }
 
 // Elimina los cursos del carrito en el DOM
